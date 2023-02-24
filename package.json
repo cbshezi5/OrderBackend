@@ -2,9 +2,9 @@
     "name": "backend-nodejs",
     "version": "1.0.0",
     "description": "",
-    "main": "Spade.js",
+    "main": "Backend.js",
     "scripts": {
-        "start": "node Order.js"
+        "start": "node Backend.js"
     },
     "author": "Cebolenkosi Shezi",
     "license": "ISC",
