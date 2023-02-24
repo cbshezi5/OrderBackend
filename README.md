@@ -11,7 +11,7 @@
 ### Step 1
 #### Clone this repository
 ### Step 2
-#### Install node modules
+#### Install node modules 'npm install'
 ### Step 3
 #### add the .env file
 ### Step 4
