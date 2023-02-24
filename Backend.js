@@ -18,7 +18,6 @@ const config = {
   server: process.env.BD_HOSTNAME,
   database: process.env.DB_NAME,
   stream: false,
-  port:1433,
   options: {
     trustedConnection: true,
     encrypt: false,
