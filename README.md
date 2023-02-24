@@ -13,7 +13,7 @@
 ### Step 2
 #### Install node modules 'npm install'
 ### Step 3
-#### add the .env file
+#### add the .env file (root dir)
 ### Step 4
 #### Import the database script to your local or remote database
 ### Step 5
