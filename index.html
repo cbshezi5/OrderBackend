@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Real-Time Order Status Updates</title>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.1/socket.io.min.js"></script>
+  </head>
+  <body>
+    <form id="orderForm" style="padding: 40px;align-self: center;background-color: lightslategray;border-radius: 40px;">
+      <h2>Client Login</h2>
+      <label for="usernameInput">Username:</label>
+      <input type="text" id="usernameInput" name="username" required>
+      <br>
+      <label for="passwordInput">Password:</label>
+      <input type="password" id="passwordInput" name="password" required>
+      <br>
+      <!-- Add your other order form inputs here -->
+      <button type="submit" style="margin: 20px;">Login</button>
+      <div style="padding: 30px;align-self: center;background-color: rgb(99, 115, 131);border-radius: 40px;">
+        <div style="padding: 30px;align-self: center;background-color: rgb(85, 101, 118);border-radius: 40px;">
+          <div id="nameText" style="text-align: center;"></div>
+        </div>
+      <div id="jobNoText"></div>
+      <div id="descriptionText"></div>
+      <div id="orderDateText"></div>
+      <div id="stageText" style="font-weight: bold;"></div>
+      <div id="expectedCompletionDateText"></div>
+      <div id="orderStatusText"></div>
+    </div>
+    </form>
+
+    <form id="statusForm" style="padding: 20px;align-self: center;background-color: rgb(151, 119, 153);border-radius: 40px;margin-top: 15px;">
+      <h2>Admin Status Update</h2>
+      <label for="userInput">User:</label>
+      <select id="userInput" name="user" required>
+      </select>
+      <br>
+      <label for="statusInput">Status:</label>
+      <select id="statusInput" name="status" required>
+        <option value="Testing">Testing</option>
+        <option value="Manufacturing">Manufacturing</option>
+        <option value="Procurement">Procurement</option>
+        <option value="audi">Audi</option>
+      </select>
+      <br>
+      <!-- Add your other order form inputs here -->
+      <button type="submit" style="margin: 20px;">Update</button>     
+    </form>
+    
+
+    <script type="text/javascript">
+      // Set up the Socket.io client
+        const serverDomain = 'http://localhost';
+        const socket = io(serverDomain);
+        let USERTOKEN = null;
+
+        // Handle the form submission
+        const orderForm = document.querySelector('#orderForm');
+        const statusForm = document.querySelector('#statusForm');
+        const selectElement = document.querySelector("#userInput");
+
+        statusForm.addEventListener('submit', async (event) =>{
+          event.preventDefault();
+          socket.emit('updateStage',{PersonId:document.querySelector('#userInput').value,stage:document.querySelector('#statusInput').value});
+        })
+
+        //Admin Function
+        window.addEventListener('DOMContentLoaded',async (event) => {
+          const listofusersjson = await fetch(`${serverDomain}/allusers`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+            });
+
+            let listofusers = await listofusersjson.json();
+          
+            for (let index = 0; index < listofusers.length; index++) {
+                selectElement.add(new Option("ID : "+listofusers[index].PersonId+" Names : "+listofusers[index].Firstname+"  "+listofusers[index].Lastname,listofusers[index].PersonId));
+                
+            }
+        });
+
+       
+        
+
+        orderForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            // Get the input values
+            const username = document.querySelector('#usernameInput').value;
+            const password = document.querySelector('#passwordInput').value;
+
+            // Get the JWT token from the server
+            const tokenResponse = await fetch(`${serverDomain}/auth`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                username: username,
+                password: password
+            })
+            });
+
+            const tokenData = await tokenResponse.json();
+            const token = tokenData.token;
+            // Storing the control token to the cookies is more convinient
+            // to keep the solution minimal we use this method 
+            USERTOKEN = tokenData.usercontrolkey; 
+            document.querySelector('#nameText').textContent = tokenData.name
+
+            // Send the authenticated fetch request
+            
+            const orderResponse = await fetch(`${serverDomain}/order/${USERTOKEN}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+            });
+
+            if (orderResponse.status === 200) {
+            const orderData = await orderResponse.json();
+            document.querySelector('#jobNoText').textContent = `Job Number: ${orderData.JobNo}`;
+            document.querySelector('#descriptionText').textContent = `Description: ${orderData.Description}`;
+            document.querySelector('#orderDateText').textContent = `Order Date: ${orderData.OrderDate}`;
+            document.querySelector('#stageText').textContent = `Stage: ${orderData.Stage}`;
+            document.querySelector('#expectedCompletionDateText').textContent = `Expected Completion Date: ${orderData.ExpectedCompletionDate}`;
+            socket.emit('updateStage',{PersonId:USERTOKEN,stage:orderData.Stage});
+            } else {
+            document.querySelector('#jobNoText').textContent = `Error: ${orderResponse.statusText}`;
+            }
+        });
+
+        // Handle the order stage response with socket io for realtime value change
+        socket.on('orderstage', ({stage,PersonId}) => {
+            //update on if the status is for this user currently logged in
+            if(PersonId == USERTOKEN)
+            {
+                document.querySelector('#stageText').textContent = `Stage: ${stage}`;
+            }
+        })
+    </script>
+  </body>
+</html>
