@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const io = require('socket.io')();
 const cors = require('cors');
 const path = require('path');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const bodyParser = require('body-parser')
 require('dotenv').config()
 const saltRounds = 10;
