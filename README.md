@@ -26,4 +26,4 @@
 #### DB_PASSWORD (Database server Password) str
 #### DB_USERNAME (Database server username) str
 #### DB_NAME (Database name) str
-### BD_HOSTNAME (Database server name or endpoint) str
+#### BD_HOSTNAME (Database server name or endpoint) str
