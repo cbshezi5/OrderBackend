@@ -3,7 +3,7 @@
 
 ## Required Systems to get this system ready 
 ### Node js And Npm 
-### MSSQL Serve
+### MSSQL Server
 ### git
 ### .env file with DB server credentials 
 
