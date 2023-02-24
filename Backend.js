@@ -54,7 +54,7 @@ app.use(bodyParser.json())
 
 // Configure CORS to only allow requests from example.com
 app.use(cors({
-  origin: ['http://localhost'],
+  origin: ['http://localhost','https://orderapptrack.herokuapp.com'],
 
 
 }));
